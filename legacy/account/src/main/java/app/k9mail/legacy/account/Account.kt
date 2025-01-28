@@ -515,12 +515,11 @@ class Account(
         return findIdentity(address) != null
     }
 
-    private val customDelimiter = "+"
     @Synchronized
     fun findIdentity(address: Address): Identity? {
         return identities.find { identity ->
             identity.email.equals(address.address, ignoreCase = true)
-            || identity.email.equals(address.address.substringBefore(customDelimiter)+"@"+address.hostname, ignoreCase = true)
+            || identity.email.equals(address.address.substringBefore(outgoingServerSettings.getRecipientDelimiter())+"@"+address.hostname, ignoreCase = true)
         }?.copy(email = address.address)
     }
 

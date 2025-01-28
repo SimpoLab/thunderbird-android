@@ -109,6 +109,7 @@ class AccountSettingsDataStore(
 
     override fun getString(key: String, defValue: String?): String? {
         return when (key) {
+            "recipient_delimiter" -> account.outgoingServerSettings.getRecipientDelimiter()
             "account_description" -> account.name
             "show_pictures_enum" -> account.showPictures.name
             "account_display_count" -> account.displayCount.toString()
@@ -142,6 +143,7 @@ class AccountSettingsDataStore(
         if (value == null) return
 
         when (key) {
+            "recipient_delimiter" -> account.outgoingServerSettings = account.outgoingServerSettings.newRecipientDelimiter(value)
             "account_description" -> account.name = value
             "show_pictures_enum" -> account.showPictures = Account.ShowPictures.valueOf(value)
             "account_display_count" -> account.displayCount = value.toInt()
