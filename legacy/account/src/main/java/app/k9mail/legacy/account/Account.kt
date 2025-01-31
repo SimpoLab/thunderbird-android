@@ -514,14 +514,28 @@ class Account(
     fun isAnIdentity(address: Address): Boolean {
         return findIdentity(address) != null
     }
+    fun String.substringBeforeAny(chars: String, ignoreCase: Boolean = false): String {
+        val index = indexOfAny(chars.toCharArray(), 0, ignoreCase)
+        return if (index == -1) this else substring(0, index)
+    }
 
+    fun String?.equalsAny(vararg strings: String, ignoreCase: Boolean = false): Boolean {
+        if (this == null) {
+            return false
+        }
+        return strings.any { this.equals(it, ignoreCase = ignoreCase) }
+    }
     @Synchronized
     fun findIdentity(address: Address): Identity? {
         return identities.find { identity ->
-            identity.email.equals(address.address, ignoreCase = true)
-            || identity.email.equals(address.address.substringBefore(outgoingServerSettings.getRecipientDelimiter())+"@"+address.hostname, ignoreCase = true)
+            identity.email.equalsAny(
+                address.address,
+                subAddressingTrueIdentity(address),
+                ignoreCase = true)
         }?.copy(email = address.address)
     }
+
+    private fun subAddressingTrueIdentity(address: Address) = address.address.substringBeforeAny(outgoingServerSettings.getRecipientDelimiter()).plus('@').plus(address.hostname)
 
     @Suppress("MagicNumber")
     val earliestPollDate: Date?
